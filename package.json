@@ -1,0 +1,9 @@
+{
+  "name": "ny-nucma-cn",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "drizzle-orm": "^2.0.0",
+    "pg": "^8.11.0"
+  }
+}

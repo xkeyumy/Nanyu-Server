@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>稿件查询 — 南渝万能墙</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --p1: #0d0818; --p2: #1a0e3a; --p3: #2d1b6b; --p4: #4c2fa3;
+    --p5: #7b55d4; --p6: #a87fe8; --p7: #d4b8f5; --p8: #f0e6ff;
+    --gold: #e8c97a; --gold2: #f5dfa0; --rose: #e86fa3; --teal: #5de8d0;
+    --easing: cubic-bezier(0.16, 1, 0.3, 1);
+    --font-title: 'Microsoft Sans Serif', 'Microsoft YaHei UI', 'Segoe UI', 'Noto Sans SC', sans-serif;
+    --font-body: 'Noto Serif SC', 'STSong', 'SimSun', 'FangSong', Georgia, serif;
+    --font-ui: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--p1); color: var(--p8); overflow-x: hidden; cursor: none; }
+
+  .cursor { position: fixed; top:0;left:0; pointer-events:none; z-index:9999; width:12px;height:12px; background:var(--p6); border-radius:50%; transform:translate(-50%,-50%); transition:width 0.3s,height 0.3s,background 0.3s; mix-blend-mode:screen; }
+  .cursor-ring { position:fixed;top:0;left:0;pointer-events:none;z-index:9998;width:36px;height:36px;border:1px solid rgba(168,127,232,0.5);border-radius:50%;transform:translate(-50%,-50%);transition:transform 0.25s var(--easing),width 0.4s,height 0.4s; }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width:20px;height:20px;background:var(--gold); }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width:56px;height:56px;border-color:var(--gold); }
+  body::before { content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* Nav */
+  nav { position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.25rem 3rem 1.25rem 4px;backdrop-filter:blur(14px);background:linear-gradient(180deg,rgba(13,8,24,0.96) 0%,transparent 100%); }
+  .logo { display:flex;align-items:center; }
+  .logo img { display:block;height:3.2rem;width:auto;transform:translateX(40px); }
+  .nav-links { display:flex;gap:2.2rem;list-style:none; }
+  .nav-links a { font-family:var(--font-ui);color:var(--p7);text-decoration:none;font-size:0.82rem;letter-spacing:0.06em;position:relative;transition:color 0.3s; }
+  .nav-links a::after { content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform 0.4s var(--easing); }
+  .nav-links a:hover { color:var(--gold); }
+  .nav-links a:hover::after, .nav-links a.active::after { transform:scaleX(1);transform-origin:left; }
+  .nav-links a.active { color:var(--gold); }
+  .nav-cta { font-family:var(--font-ui);padding:0.55rem 1.4rem;border:1px solid var(--p5);background:transparent;color:var(--p7);font-size:0.8rem;letter-spacing:0.06em;cursor:none;border-radius:2px;transition:all 0.3s;position:relative;overflow:hidden; }
+  .nav-cta::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--p4),var(--rose));opacity:0;transition:opacity 0.3s; }
+  .nav-cta:hover::before { opacity:1; }
+  .nav-cta span { position:relative;z-index:1; }
+
+  /* Mobile hamburger */
+  .hamburger { display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;z-index:600; }
+  .hamburger span { display:block;width:24px;height:2px;background:var(--p7);border-radius:2px;transition:all 0.3s var(--easing); }
+  .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity:0;transform:scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+  .mobile-nav { display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:490;background:rgba(13,8,24,0.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:2.5rem;opacity:0;transition:opacity 0.35s var(--easing); }
+  .mobile-nav.open { display:flex;opacity:1; }
+  .mobile-nav a { font-family:var(--font-ui);font-size:1.4rem;color:var(--p7);text-decoration:none;letter-spacing:0.08em;transition:color 0.3s;padding:0.5rem 2rem;border-bottom:1px solid rgba(123,85,212,0.2);width:100%;text-align:center; }
+  .mobile-nav a:hover { color:var(--gold); }
+  .mobile-nav .mobile-cta { padding:0.9rem 2.8rem;background:linear-gradient(135deg,var(--p4),var(--rose));color:white;border:none;border-radius:4px;font-family:var(--font-ui);font-size:1rem;letter-spacing:0.08em; }
+
+  /* Page header */
+  .page-hero {
+    padding: 9rem 2rem 4rem;
+    background: linear-gradient(180deg, var(--p2) 0%, var(--p1) 100%);
+    position: relative; overflow: hidden; text-align: center;
+  }
+  .page-hero::before {
+    content:'';position:absolute;inset:0;
+    background-image:linear-gradient(rgba(75,47,163,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(75,47,163,0.07) 1px,transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 100%);
+  }
+  .page-orb { position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(circle,rgba(75,47,163,0.5) 0%,rgba(232,111,163,0.2) 50%,transparent 70%); }
+  .page-hero-content { position:relative;z-index:2; }
+  .page-label { display:inline-flex;align-items:center;gap:0.6rem;font-family:var(--font-ui);font-size:0.7rem;letter-spacing:0.2em;color:var(--gold);margin-bottom:1rem; }
+  .page-label::before,.page-label::after { content:'';display:block;width:20px;height:1px;background:var(--gold); }
+  .page-title { font-family:var(--font-title);font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:0.04em;background:linear-gradient(135deg,var(--gold),var(--p7),var(--p6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.8rem; }
+  .page-sub { font-family:var(--font-body);color:var(--p6);font-size:0.95rem;letter-spacing:0.06em; }
+
+  /* Filter bar */
+  .filter-section {
+    max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 1rem;
+  }
+  .filter-bar {
+    background: linear-gradient(135deg, rgba(29,14,58,0.9), rgba(45,27,107,0.5));
+    border: 1px solid rgba(123,85,212,0.25); border-radius: 12px;
+    padding: 1.6rem 2rem;
+    display: flex; gap: 1.2rem; align-items: flex-end; flex-wrap: wrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .filter-group { display:flex;flex-direction:column;gap:0.45rem;flex:1;min-width:160px; }
+  .filter-label { font-family:var(--font-ui);font-size:0.7rem;letter-spacing:0.12em;color:var(--gold); }
+  .filter-select, .filter-input {
+    font-family: var(--font-ui); font-size: 0.85rem; color: var(--p8);
+    background: rgba(13,8,24,0.7); border: 1px solid rgba(123,85,212,0.3);
+    border-radius: 7px; padding: 0.6rem 0.9rem; outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s; width: 100%;
+  }
+  .filter-select:focus, .filter-input:focus { border-color: var(--p5); box-shadow: 0 0 0 3px rgba(123,85,212,0.15); }
+  .filter-select option { background: var(--p2); color: var(--p8); }
+  .filter-btn {
+    font-family: var(--font-ui); font-size: 0.85rem; font-weight: 500;
+    letter-spacing: 0.06em; padding: 0.62rem 1.6rem; border: none; border-radius: 7px;
+    cursor: none; transition: all 0.3s; white-space: nowrap; align-self: flex-end;
+  }
+  .filter-btn-primary {
+    background: linear-gradient(135deg, var(--p4), var(--p5));
+    color: white; box-shadow: 0 4px 16px rgba(75,47,163,0.4);
+  }
+  .filter-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(75,47,163,0.6); }
+  .filter-btn-reset {
+    background: transparent; border: 1px solid rgba(123,85,212,0.3);
+    color: var(--p6);
+  }
+  .filter-btn-reset:hover { border-color: var(--p6); color: var(--p8); background: rgba(123,85,212,0.1); }
+
+  /* Results area */
+  .results-section { max-width: 1100px; margin: 0 auto; padding: 0 2rem 5rem; }
+
+  .results-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.2rem; padding: 0 0.2rem;
+  }
+  .results-count { font-family: var(--font-ui); font-size: 0.8rem; color: var(--p6); letter-spacing: 0.06em; }
+  .results-sort { display: flex; gap: 0.5rem; }
+  .sort-btn { font-family: var(--font-ui); font-size: 0.75rem; padding: 0.35rem 0.85rem; border-radius: 100px; border: 1px solid rgba(123,85,212,0.25); background: transparent; color: var(--p6); cursor: none; transition: all 0.3s; }
+  .sort-btn.active, .sort-btn:hover { background: rgba(123,85,212,0.2); border-color: var(--p5); color: var(--p7); }
+
+  /* Cards grid */
+  .cards-grid { display: grid; gap: 1rem; }
+
+  .submission-card {
+    background: linear-gradient(135deg, rgba(29,14,58,0.85) 0%, rgba(13,8,24,0.6) 100%);
+    border: 1px solid rgba(75,47,163,0.2); border-radius: 10px;
+    padding: 1.6rem 1.8rem; position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s var(--easing), box-shadow 0.3s;
+    opacity: 0; transform: translateY(16px);
+    animation: cardIn 0.5s var(--easing) forwards;
+  }
+  @keyframes cardIn { to { opacity:1; transform:none; } }
+  .submission-card:hover { border-color: rgba(123,85,212,0.45); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .submission-card::before { content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--p5),transparent);transform:scaleX(0);transition:transform 0.4s; }
+  .submission-card:hover::before { transform:scaleX(1); }
+
+  .card-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.9rem;gap:1rem; }
+  .card-type-badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 0.08em;
+    padding: 0.3rem 0.8rem; border-radius: 100px;
+    border: 1px solid; white-space: nowrap;
+  }
+  .type-寻物启事 { color:#5de8d0; border-color:rgba(93,232,208,0.35); background:rgba(93,232,208,0.08); }
+  .type-表白 { color:var(--rose); border-color:rgba(232,111,163,0.35); background:rgba(232,111,163,0.08); }
+  .type-挂人 { color:#f87171; border-color:rgba(248,113,113,0.35); background:rgba(248,113,113,0.08); }
+  .type-扩列 { color:var(--p6); border-color:rgba(168,127,232,0.35); background:rgba(168,127,232,0.08); }
+  .type-吐槽 { color:var(--gold); border-color:rgba(232,201,122,0.35); background:rgba(232,201,122,0.08); }
+  .type-二手出售 { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
+  .type-捞人 { color:#60a5fa; border-color:rgba(96,165,250,0.35); background:rgba(96,165,250,0.08); }
+
+  .card-time { font-family:var(--font-ui);font-size:0.72rem;color:var(--p5);letter-spacing:0.04em;white-space:nowrap; }
+  .card-content { font-family:var(--font-body);font-size:0.93rem;line-height:2;color:var(--p7);letter-spacing:0.04em; }
+
+  /* Empty / loading states */
+  .state-box {
+    text-align: center; padding: 5rem 2rem;
+    border: 1px dashed rgba(123,85,212,0.2); border-radius: 12px;
+  }
+  .state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+  .state-title { font-family:var(--font-title);font-size:1.1rem;color:var(--p6);margin-bottom:0.5rem; }
+  .state-sub { font-family:var(--font-body);font-size:0.85rem;color:var(--p5); }
+
+  .spinner {
+    width: 40px; height: 40px; border: 3px solid rgba(123,85,212,0.15);
+    border-top-color: var(--p5); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Pagination */
+  .pagination { display:flex;justify-content:center;gap:0.5rem;margin-top:2.5rem; }
+  .page-btn { font-family:var(--font-ui);font-size:0.8rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid rgba(123,85,212,0.25);background:transparent;color:var(--p6);cursor:none;transition:all 0.3s; }
+  .page-btn:hover,.page-btn.active { background:rgba(123,85,212,0.2);border-color:var(--p5);color:var(--p7); }
+  .page-btn.active { background:linear-gradient(135deg,var(--p4),var(--p5));border-color:transparent;color:white; }
+
+  footer { padding:2.5rem 2rem;text-align:center;border-top:1px solid rgba(75,47,163,0.2); }
+  .footer-copy { font-family:var(--font-body);font-size:0.73rem;color:var(--p5);letter-spacing:0.06em; }
+
+  @media (max-width: 768px) {
+    nav { padding:1rem 1.5rem;background:rgba(13,8,24,0.96); }
+    .nav-links,.nav-cta { display:none; }
+    .hamburger { display:flex; }
+    body { cursor:auto; }
+    .cursor,.cursor-ring { display:none; }
+    .logo img { transform:translateX(0); }
+    .page-hero { padding:7rem 1.25rem 3rem; }
+    .filter-bar { flex-direction:column; gap:1rem; padding:1.2rem; }
+    .filter-group { min-width:100%; }
+    .filter-btn { width:100%; text-align:center; }
+    .results-meta { flex-direction:column; align-items:flex-start; gap:0.75rem; }
+    .submission-card { padding:1.2rem; }
+    .card-header { flex-direction:column; gap:0.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeMobileNav()">返回首页</a>
+  <a href="index.html#features" onclick="closeMobileNav()">平台功能</a>
+  <a href="index.html#testimonials" onclick="closeMobileNav()">学生评价</a>
+  <a href="query.html" onclick="closeMobileNav()">稿件查询</a>
+  <button class="mobile-cta" onclick="window.location.href='https://qm.qq.com/q/FHAbiDBIQO'">立即进入</button>
+</div>
+
+<nav>
+  <div class="logo">
+    <img src="https://www.image2url.com/r2/default/images/1777186784039-1bad113d-14f6-4391-a713-9dbdfbeb9cd8.png" alt="南渝万能墙 logo">
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">返回首页</a></li>
+    <li><a href="index.html#features">平台功能</a></li>
+    <li><a href="index.html#testimonials">学生评价</a></li>
+    <li><a href="query.html" class="active">稿件查询</a></li>
+  </ul>
+  <button class="nav-cta" onclick="window.location.href='https://qm.qq.com/q/FHAbiDBIQO'"><span>立即进入</span></button>
+  <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="page-hero">
+  <div class="page-orb"></div>
+  <div class="page-hero-content">
+    <div class="page-label">投稿记录</div>
+    <h1 class="page-title">稿件查询</h1>
+    <p class="page-sub">查找已审核发布的投稿内容，支持按时间与类型筛选</p>
+  </div>
+</div>
+
+<div class="filter-section">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <div class="filter-label">开始时间</div>
+      <input type="date" class="filter-input" id="dateStart" />
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">结束时间</div>
+      <input type="date" class="filter-input" id="dateEnd" />
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">投稿类型</div>
+      <select class="filter-select" id="typeFilter">
+        <option value="">全部类型</option>
+        <option value="寻物启事">寻物启事</option>
+        <option value="表白">表白</option>
+        <option value="挂人">挂人</option>
+        <option value="扩列">扩列</option>
+        <option value="吐槽">吐槽</option>
+        <option value="二手出售">二手出售</option>
+        <option value="捞人">捞人</option>
+      </select>
+    </div>
+    <button class="filter-btn filter-btn-primary" onclick="applyFilter()">搜索</button>
+    <button class="filter-btn filter-btn-reset" onclick="resetFilter()">重置</button>
+  </div>
+</div>
+
+<div class="results-section">
+  <div class="results-meta">
+    <div class="results-count" id="resultsCount">正在加载…</div>
+    <div class="results-sort">
+      <button class="sort-btn active" id="sortNewest" onclick="setSort('desc')">最新优先</button>
+      <button class="sort-btn" id="sortOldest" onclick="setSort('asc')">最早优先</button>
+    </div>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <div class="state-title">正在加载稿件</div>
+      <div class="state-sub">请稍候…</div>
+    </div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<footer>
+  <div class="footer-copy">© 2026 南渝万能墙运营队 · 保留所有权利</div>
+</footer>
+
+<script>
+// ── Cursor ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function animCursor(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;cursor.style.left=mx+'px';cursor.style.top=my+'px';ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animCursor);})();
+
+// ── Mobile nav ──
+function toggleMobileNav(){const n=document.getElementById('mobileNav'),b=document.getElementById('hamburger');n.classList.toggle('open');b.classList.toggle('open');}
+function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');document.getElementById('hamburger').classList.remove('open');}
+
+// ── Config ──
+// Use a backend API route to connect with Neon via Drizzle ORM.
+// The browser cannot connect directly to Neon/Postgres securely.
+// This page requests /api/submissions, and the backend should query Neon.
+// Example Neon table schema:
+//   CREATE TABLE submissions (
+//     id SERIAL PRIMARY KEY,
+//     created_at TIMESTAMPTZ DEFAULT NOW(),
+//     content TEXT NOT NULL,
+//     type VARCHAR(20) NOT NULL
+//   );
+//
+// For demo purposes, we use mock data when the API is unavailable.
+
+const API_ENDPOINT = '/api/submissions'; // Your backend endpoint
+
+const PAGE_SIZE = 10;
+let allData = [];
+let filteredData = [];
+let currentPage = 1;
+let sortOrder = 'desc';
+
+// Mock data for demonstration
+const MOCK_DATA = [
+  { id:1, created_at:'2026-04-20T09:15:00Z', content:'寻找昨天在操场丢失的蓝色水杯，杯身有一只小熊的贴纸，非常有纪念意义，拾到者请联系我，感谢！', type:'寻物启事' },
+  { id:2, created_at:'2026-04-19T14:30:00Z', content:'想认识更多喜欢打篮球的同学，初二的都可以来，放学后在操场集合，一起打球！', type:'扩列' },
+  { id:3, created_at:'2026-04-18T16:45:00Z', content:'有一本九成新的数学竞赛辅导书《高中数学联赛备考指南》出售，定价68元，半价出，有需要的同学请私信。', type:'二手出售' },
+  { id:4, created_at:'2026-04-17T11:20:00Z', content:'想找一个一起学习英语口语的搭子，最好是高一高二的同学，每周可以碰面练习两三次。', type:'扩列' },
+  { id:5, created_at:'2026-04-16T08:55:00Z', content:'食堂的炒饭加了太多盐了，已经连续两周了，能不能改善一下！', type:'吐槽' },
+  { id:6, created_at:'2026-04-15T13:00:00Z', content:'致图书馆那个总是占位置不还的同学，请自觉遵守公共场所礼仪，书桌是给大家用的。', type:'挂人' },
+  { id:7, created_at:'2026-04-14T17:30:00Z', content:'有没有高一同学一起备考英语四六级的？想组建一个学习小组互相监督打卡。', type:'捞人' },
+  { id:8, created_at:'2026-04-13T10:10:00Z', content:'那个每天早自习在走廊背书的女生，你的声音真的很好听，希望有机会认识你。', type:'表白' },
+  { id:9, created_at:'2026-04-12T15:40:00Z', content:'丢失一把红色雨伞，上周下雨天落在教学楼A栋3楼走廊，如有拾到请联系。', type:'寻物启事' },
+  { id:10, created_at:'2026-04-11T09:00:00Z', content:'出售初一全套教材及练习册，基本没用过，成色新，适合初一新生，价格面议。', type:'二手出售' },
+  { id:11, created_at:'2026-04-10T14:20:00Z', content:'学校厕所维修了一个月还没修好，里面的管道一直漏水，太影响正常使用了。', type:'吐槽' },
+  { id:12, created_at:'2026-04-09T11:35:00Z', content:'高二化学联合课题组招募成员，需要对化学有兴趣，能坚持每周参与实验，名额有限。', type:'捞人' },
+  { id:13, created_at:'2026-04-08T16:00:00Z', content:'某同学在班级群里散布不实信息影响同学声誉，请立即删帖道歉，否则将向年级组反映。', type:'挂人' },
+  { id:14, created_at:'2026-04-07T08:30:00Z', content:'那个在图书馆坐C3位置的男生，你读书的样子很专注，想和你交个朋友。', type:'表白' },
+  { id:15, created_at:'2026-04-06T13:50:00Z', content:'寻找本周三课间在B栋2楼拾到钥匙串的同学，上面有三把钥匙和一个小熊猫挂件，请联系失主。', type:'寻物启事' },
+];
+
+async function fetchData() {
+  try {
+    const res = await fetch(API_ENDPOINT);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('API 返回数据格式错误');
+    return data;
+  } catch (error) {
+    console.warn('无法从 API 加载稿件，使用本地演示数据。', error);
+    await new Promise(r => setTimeout(r, 800));
+    return MOCK_DATA;
+  }
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit' })
+    + ' ' + d.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' });
+}
+
+function getTypeEmoji(type) {
+  const map = { '寻物启事':'🔍','表白':'💌','挂人':'⚠️','扩列':'🤝','吐槽':'💬','二手出售':'🛍️','捞人':'🎣' };
+  return map[type] || '📄';
+}
+
+function renderCards(data) {
+  const grid = document.getElementById('cardsGrid');
+  if (!data.length) {
+    grid.innerHTML = `<div class="state-box"><div class="state-icon">🔍</div><div class="state-title">暂无符合条件的稿件</div><div class="state-sub">请尝试调整筛选条件</div></div>`;
+    return;
+  }
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = data.slice(start, start + PAGE_SIZE);
+  grid.innerHTML = pageData.map((item, i) => `
+    <div class="submission-card" style="animation-delay:${i * 60}ms">
+      <div class="card-header">
+        <span class="card-type-badge type-${item.type}">${getTypeEmoji(item.type)} ${item.type}</span>
+        <span class="card-time">${formatDate(item.created_at)}</span>
+      </div>
+      <div class="card-content">${escapeHtml(item.content)}</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderPagination(total) {
+  const pages = Math.ceil(total / PAGE_SIZE);
+  const pg = document.getElementById('pagination');
+  if (pages <= 1) { pg.innerHTML=''; return; }
+  let html = '';
+  if (currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage-1})">‹</button>`;
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || Math.abs(i - currentPage) <= 1)
+      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    else if (Math.abs(i - currentPage) === 2)
+      html += `<span class="page-btn" style="cursor:default;border:none;color:var(--p5)">…</span>`;
+  }
+  if (currentPage < pages) html += `<button class="page-btn" onclick="goPage(${currentPage+1})">›</button>`;
+  pg.innerHTML = html;
+}
+
+function goPage(n) {
+  currentPage = n;
+  renderCards(filteredData);
+  renderPagination(filteredData.length);
+  window.scrollTo({ top: document.querySelector('.results-section').offsetTop - 80, behavior: 'smooth' });
+}
+
+function applyFilter() {
+  const start = document.getElementById('dateStart').value;
+  const end = document.getElementById('dateEnd').value;
+  const type = document.getElementById('typeFilter').value;
+
+  filteredData = allData.filter(item => {
+    const d = new Date(item.created_at);
+    if (start && d < new Date(start)) return false;
+    if (end && d > new Date(end + 'T23:59:59')) return false;
+    if (type && item.type !== type) return false;
+    return true;
+  });
+
+  sortData();
+  currentPage = 1;
+  document.getElementById('resultsCount').textContent = `共找到 ${filteredData.length} 条稿件`;
+  renderCards(filteredData);
+  renderPagination(filteredData.length);
+}
+
+function resetFilter() {
+  document.getElementById('dateStart').value = '';
+  document.getElementById('dateEnd').value = '';
+  document.getElementById('typeFilter').value = '';
+  filteredData = [...allData];
+  sortData();
+  currentPage = 1;
+  document.getElementById('resultsCount').textContent = `共 ${filteredData.length} 条稿件`;
+  renderCards(filteredData);
+  renderPagination(filteredData.length);
+}
+
+function sortData() {
+  filteredData.sort((a, b) => {
+    const da = new Date(a.created_at), db = new Date(b.created_at);
+    return sortOrder === 'desc' ? db - da : da - db;
+  });
+}
+
+function setSort(order) {
+  sortOrder = order;
+  document.getElementById('sortNewest').classList.toggle('active', order === 'desc');
+  document.getElementById('sortOldest').classList.toggle('active', order === 'asc');
+  sortData();
+  currentPage = 1;
+  renderCards(filteredData);
+  renderPagination(filteredData.length);
+}
+
+// Init
+(async () => {
+  try {
+    allData = await fetchData();
+    filteredData = [...allData];
+    sortData();
+    document.getElementById('resultsCount').textContent = `共 ${filteredData.length} 条稿件`;
+    renderCards(filteredData);
+    renderPagination(filteredData.length);
+  } catch (e) {
+    document.getElementById('cardsGrid').innerHTML = `<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">加载失败</div><div class="state-sub">请检查网络连接或稍后重试</div></div>`;
+    document.getElementById('resultsCount').textContent = '加载失败';
+  }
+})();
+</script>
+</body>
+</html>
