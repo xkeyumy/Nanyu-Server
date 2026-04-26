@@ -9,22 +9,6 @@ const pool = new Pool({
 });
 const db = drizzle(pool);
 
-async function parseJsonBody(req) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => {
-      if (!body) return resolve({});
-      try {
-        resolve(JSON.parse(body));
-      } catch (err) {
-        reject(err);
-      }
-    });
-    req.on('error', reject);
-  });
-}
-
 const submissions = pgTable('submissions', {
   id: serial('id').primaryKey(),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
@@ -33,6 +17,15 @@ const submissions = pgTable('submissions', {
 });
 
 export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (!process.env.DATABASE_URL) {
     return res.status(500).json({ error: 'DATABASE_URL 未配置，请检查 Vercel 环境变量。' });
   }
@@ -44,8 +37,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const body = await parseJsonBody(req);
-      const { created_at, content, type } = body || {};
+      const { created_at, content, type } = req.body || {};
       if (!content || !type) {
         return res.status(400).json({ error: '缺少 content 或 type 字段。' });
       }
@@ -58,8 +50,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      const body = await parseJsonBody(req);
-      const id = Number(req.query.id || body?.id);
+      const id = Number(req.query.id || req.body?.id);
       if (!id || Number.isNaN(id)) {
         return res.status(400).json({ error: '无效的 id 参数。' });
       }
