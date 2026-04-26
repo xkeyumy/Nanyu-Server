@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>南渝万能墙—始终致力于服务好每一位南渝学子</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --p1: #0d0818;
+    --p2: #1a0e3a;
+    --p3: #2d1b6b;
+    --p4: #4c2fa3;
+    --p5: #7b55d4;
+    --p6: #a87fe8;
+    --p7: #d4b8f5;
+    --p8: #f0e6ff;
+    --gold: #e8c97a;
+    --gold2: #f5dfa0;
+    --rose: #e86fa3;
+    --teal: #5de8d0;
+    --easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Title: Microsoft Sans Serif with Chinese fallbacks */
+    --font-title: 'Microsoft Sans Serif', 'Microsoft YaHei UI', 'Segoe UI', 'Noto Sans SC', sans-serif;
+    /* Body: Serif */
+    --font-body: 'Noto Serif SC', 'STSong', 'SimSun', 'FangSong', Georgia, serif;
+    /* UI elements: clean sans */
+    --font-ui: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--p1);
+    color: var(--p8);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── Custom cursor ── */
+  .cursor {
+    position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+    width: 12px; height: 12px; background: var(--p6); border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
+    width: 36px; height: 36px; border: 1px solid rgba(168,127,232,0.5);
+    border-radius: 50%; transform: translate(-50%, -50%);
+    transition: transform 0.25s var(--easing), width 0.4s, height 0.4s, border-color 0.3s;
+  }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 20px; height: 20px; background: var(--gold); }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 56px; height: 56px; border-color: var(--gold); }
+
+  /* ── Noise overlay ── */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1000; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 3rem 1.25rem 4px;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, rgba(13,8,24,0.92) 0%, transparent 100%);
+    animation: fadeDown 1s var(--easing) both;
+  }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
+
+  .logo {
+    display: flex; align-items: center;
+    margin-left: 0;
+  }
+  .logo img {
+    display: block;
+    height: 3.2rem;
+    width: auto;
+    transform: translateX(40px);
+  }
+
+  .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+  .nav-links a {
+    font-family: var(--font-ui); color: var(--p7); text-decoration: none;
+    font-size: 0.82rem; letter-spacing: 0.06em; position: relative; transition: color 0.3s;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px;
+    background: var(--gold); transform: scaleX(0); transform-origin: right;
+    transition: transform 0.4s var(--easing);
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  .nav-cta {
+    font-family: var(--font-ui); padding: 0.55rem 1.4rem;
+    border: 1px solid var(--p5); background: transparent; color: var(--p7);
+    font-size: 0.8rem; letter-spacing: 0.06em; cursor: none; border-radius: 2px;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .nav-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--p4), var(--rose));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .nav-cta:hover::before { opacity: 1; }
+  .nav-cta span { position: relative; z-index: 1; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; padding: 8rem 2rem 5rem;
+  }
+
+  .orb { position: absolute; border-radius: 50%; filter: blur(80px); animation: drift 12s ease-in-out infinite alternate; pointer-events: none; }
+  .orb-1 { width: 650px; height: 650px; background: radial-gradient(circle, rgba(75,47,163,0.65) 0%, transparent 70%); top: -120px; left: -120px; }
+  .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(232,111,163,0.35) 0%, transparent 70%); top: 8%; right: -80px; animation-delay: -4s; animation-duration: 9s; }
+  .orb-3 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(93,232,208,0.22) 0%, transparent 70%); bottom: 5%; left: 18%; animation-delay: -7s; animation-duration: 14s; }
+  .orb-4 { width: 360px; height: 360px; background: radial-gradient(circle, rgba(168,127,232,0.38) 0%, transparent 70%); bottom: 18%; right: 8%; animation-delay: -2s; animation-duration: 11s; }
+  @keyframes drift {
+    0%   { transform: translate(0,0) scale(1); }
+    33%  { transform: translate(30px,-40px) scale(1.05); }
+    66%  { transform: translate(-20px,20px) scale(0.95); }
+    100% { transform: translate(15px,-15px) scale(1.02); }
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(75,47,163,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(75,47,163,0.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+  }
+
+  .particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .particle {
+    position: absolute; border-radius: 50%; opacity: 0;
+    animation: floatUp var(--dur, 7s) var(--delay, 0s) ease-in-out infinite;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translateY(0) scale(0); }
+    20%  { opacity: 0.55; transform: translateY(-20px) scale(1); }
+    80%  { opacity: 0.25; }
+    100% { opacity: 0; transform: translateY(-130px) scale(0.4); }
+  }
+
+  .hero-content { text-align: center; position: relative; z-index: 10; max-width: 960px; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 0.22em;
+    color: var(--gold); margin-bottom: 2rem;
+    animation: fadeUp 1s var(--easing) 0.3s both;
+  }
+  .eyebrow::before, .eyebrow::after { content: ''; display: block; width: 30px; height: 1px; background: var(--gold); }
+
+  /* MAIN TITLE — Microsoft Sans Serif */
+  .hero-title {
+    font-family: var(--font-title);
+    font-size: clamp(2.4rem, 6.5vw, 5.2rem);
+    font-weight: 700; line-height: 1.25; letter-spacing: 0.03em;
+    margin-bottom: 15px;
+    animation: fadeUp 1s var(--easing) 0.5s both;
+  }
+  .hero-title .line1 {
+    display: block;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--p7) 40%, var(--p6) 70%, var(--rose) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    background-size: 200% 200%; animation: shimmer 5s ease infinite;
+  }
+  .hero-title .line2 {
+    display: block; font-size: clamp(1.1rem, 2.8vw, 2rem);
+    font-weight: 400; letter-spacing: 0.06em;
+    color: var(--p7); margin-top: 20px;
+    background: none; -webkit-text-fill-color: var(--p7);
+  }
+  @keyframes shimmer { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+  /* School badge */
+  .school-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-ui); font-size: 0.8rem; color: var(--p6);
+    border: 1px solid rgba(168,127,232,0.35); border-radius: 100px;
+    padding: 0.35rem 1rem; margin-bottom: 1.8rem;
+    animation: fadeUp 1s var(--easing) 0.55s both;
+    letter-spacing: 0.04em;
+  }
+
+  /* Body text in serif */
+  .hero-sub {
+    font-family: var(--font-body);
+    font-size: clamp(0.95rem, 1.8vw, 1.12rem); color: var(--p7);
+    font-weight: 300; max-width: 580px; margin: 0 auto 2.8rem;
+    line-height: 2.1; letter-spacing: 0.05em;
+    animation: fadeUp 1s var(--easing) 0.7s both;
+  }
+
+  .hero-ctas {
+    display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 1s var(--easing) 0.9s both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+
+  .btn-primary {
+    font-family: var(--font-ui); padding: 0.9rem 2.3rem; border: none; cursor: none;
+    font-size: 0.9rem; letter-spacing: 0.08em; font-weight: 500; border-radius: 3px;
+    position: relative; overflow: hidden; color: white;
+    background: linear-gradient(135deg, var(--p4) 0%, var(--p5) 50%, var(--rose) 100%);
+    transition: transform 0.3s var(--easing), box-shadow 0.3s;
+    box-shadow: 0 8px 40px rgba(75,47,163,0.5);
+  }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--rose) 0%, var(--p5) 50%, var(--gold) 100%);
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 60px rgba(75,47,163,0.7); }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-ghost {
+    font-family: var(--font-ui); padding: 0.9rem 2.3rem; cursor: none;
+    font-size: 0.9rem; letter-spacing: 0.08em; font-weight: 500; border-radius: 3px;
+    background: transparent; border: 1px solid rgba(168,127,232,0.4); color: var(--p7);
+    transition: all 0.3s var(--easing); position: relative; overflow: hidden;
+  }
+  .btn-ghost::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(75,47,163,0.3), rgba(168,127,232,0.1));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .btn-ghost:hover { border-color: var(--p6); color: white; }
+  .btn-ghost:hover::before { opacity: 1; }
+  .btn-ghost span { position: relative; z-index: 1; }
+
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    font-family: var(--font-ui); font-size: 0.62rem; letter-spacing: 0.18em; color: var(--p6);
+    animation: fadeUp 1s var(--easing) 1.5s both;
+  }
+  .scroll-line { width: 1px; height: 50px; background: linear-gradient(180deg, var(--p5), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse {
+    0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+    50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+    51%  { transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+  }
+
+  /* ── Shared section styles ── */
+  section { padding: 8rem 2rem; position: relative; }
+
+  .section-label {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold);
+    margin-bottom: 0.9rem;
+  }
+  .section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+
+  /* Section titles use Microsoft Sans Serif */
+  .section-title {
+    font-family: var(--font-title);
+    font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; line-height: 1.3;
+    margin-bottom: 1.2rem; letter-spacing: 0.02em;
+  }
+  .section-title strong {
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--p6), var(--rose));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  /* Body text in serif */
+  .section-body {
+    font-family: var(--font-body); color: var(--p7); line-height: 2.1;
+    font-size: 0.98rem; max-width: 480px; letter-spacing: 0.05em;
+  }
+
+  /* ── Marquee ── */
+  .showcase { overflow: hidden; padding: 3.5rem 0; background: var(--p1); }
+  .marquee-track { display: flex; gap: 1.4rem; animation: marquee 30s linear infinite; width: max-content; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .marquee-pill {
+    flex-shrink: 0; padding: 0.65rem 1.8rem; border-radius: 100px;
+    border: 1px solid rgba(123,85,212,0.3);
+    font-family: var(--font-ui); font-size: 0.82rem; letter-spacing: 0.05em;
+    color: var(--p7); white-space: nowrap; background: rgba(29,14,58,0.5);
+  }
+  .marquee-pill.highlight {
+    background: linear-gradient(135deg, rgba(75,47,163,0.5), rgba(232,111,163,0.3));
+    border-color: rgba(168,127,232,0.5); color: var(--p8);
+  }
+
+  /* ── Stats ── */
+  .stats {
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, var(--p3) 0%, var(--p2) 50%, rgba(75,47,163,0.4) 100%);
+    border-top: 1px solid rgba(123,85,212,0.2); border-bottom: 1px solid rgba(123,85,212,0.2);
+    position: relative; overflow: hidden;
+  }
+  .stats::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(168,127,232,0.1) 0%, transparent 70%);
+  }
+  .stats-grid {
+    max-width: 1000px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem; text-align: center; position: relative; z-index: 1;
+  }
+  .stat-num {
+    font-family: var(--font-title); font-size: 3.8rem; font-weight: 700; line-height: 1;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .stat-label { font-family: var(--font-body); font-size: 0.82rem; letter-spacing: 0.1em; color: var(--p7); }
+
+  /* ── Features ── */
+  .features { background: linear-gradient(180deg, var(--p1) 0%, var(--p2) 50%, var(--p1) 100%); }
+  .features-inner { max-width: 1200px; margin: 0 auto; }
+  .features-header { max-width: 620px; margin-bottom: 5rem; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+
+  .feature-card {
+    padding: 2.4rem 2rem; border: 1px solid rgba(75,47,163,0.2); border-radius: 4px;
+    background: linear-gradient(135deg, rgba(29,14,58,0.92) 0%, rgba(13,8,24,0.65) 100%);
+    position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(40px);
+    transition: transform 0.4s var(--easing), border-color 0.3s, box-shadow 0.4s;
+  }
+  .feature-card.visible {
+    opacity: 1; transform: none;
+    transition: opacity 0.7s var(--easing), transform 0.7s var(--easing), border-color 0.3s, box-shadow 0.4s;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(75,47,163,0.15) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feature-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--p5), transparent);
+    transform: scaleX(0); transition: transform 0.4s var(--easing);
+  }
+  .feature-card:hover { transform: translateY(-6px); border-color: rgba(123,85,212,0.5); box-shadow: 0 24px 60px rgba(13,8,24,0.65); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-card:hover::after { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 48px; height: 48px; margin-bottom: 1.4rem;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .feature-icon svg { width: 26px; height: 26px; }
+  .feature-icon::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(75,47,163,0.4), rgba(168,127,232,0.2));
+    border-radius: 10px; border: 1px solid rgba(123,85,212,0.3);
+  }
+  /* Feature card headings: Microsoft Sans Serif */
+  .feature-card h3 {
+    font-family: var(--font-title);
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem;
+    color: var(--p8); letter-spacing: 0.03em;
+  }
+  /* Feature card body: serif */
+  .feature-card p {
+    font-family: var(--font-body);
+    font-size: 0.88rem; color: var(--p7); line-height: 2.05; letter-spacing: 0.04em;
+  }
+
+  /* ── Testimonials ── */
+  .testimonials { background: var(--p1); }
+  .testimonials-inner { max-width: 1100px; margin: 0 auto; }
+  .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 4rem; }
+  .testi-card {
+    padding: 2rem; border-radius: 4px;
+    border: 1px solid rgba(75,47,163,0.2);
+    background: linear-gradient(135deg, rgba(29,14,58,0.7) 0%, rgba(13,8,24,0.4) 100%);
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s var(--easing), transform 0.7s var(--easing);
+  }
+  .testi-card.visible { opacity: 1; transform: none; }
+  /* Quote in serif */
+  .testi-quote {
+    font-family: var(--font-body); font-size: 0.95rem;
+    line-height: 2.1; color: var(--p8); margin-bottom: 1.4rem; letter-spacing: 0.04em;
+  }
+  .testi-quote::before { content: '\300C'; color: var(--p5); font-size: 1.8rem; line-height: 0; vertical-align: -0.4em; margin-right: 2px; }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--p4), var(--rose));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-ui); font-size: 0.8rem; font-weight: 600; color: white; flex-shrink: 0;
+  }
+  /* Author name: Microsoft Sans Serif */
+  .testi-name { font-family: var(--font-title); font-size: 0.88rem; font-weight: 700; color: var(--p8); letter-spacing: 0.03em; }
+  .testi-role { font-family: var(--font-body); font-size: 0.75rem; color: var(--p6); letter-spacing: 0.04em; margin-top: 2px; }
+  .stars { color: var(--gold); font-size: 0.82rem; letter-spacing: 3px; margin-bottom: 1rem; }
+
+  /* ── CTA Section ── */
+  .cta-section {
+    padding: 10rem 2rem; text-align: center;
+    background: linear-gradient(180deg, var(--p1) 0%, var(--p2) 50%, var(--p1) 100%);
+    position: relative; overflow: hidden;
+  }
+  .cta-section .orb-5 {
+    position: absolute; width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(75,47,163,0.4) 0%, rgba(232,111,163,0.15) 50%, transparent 70%);
+    filter: blur(60px); top: 50%; left: 50%; transform: translate(-50%, -50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.7; }
+    50%       { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  }
+  .cta-inner { position: relative; z-index: 1; }
+  /* CTA title: Microsoft Sans Serif */
+  .cta-title {
+    font-family: var(--font-title);
+    font-size: clamp(2.2rem, 5.5vw, 4.8rem); font-weight: 700;
+    line-height: 1.3; margin-bottom: 1.5rem; letter-spacing: 0.03em;
+  }
+  .cta-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--p6), var(--gold), var(--rose));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    background-size: 200% 200%; animation: shimmer 5s ease infinite;
+  }
+  /* CTA sub: serif */
+  .cta-sub {
+    font-family: var(--font-body); color: var(--p7); font-size: 1.02rem;
+    max-width: 500px; margin: 0 auto 3rem; line-height: 2.1; letter-spacing: 0.05em;
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding: 3rem 2rem; text-align: center;
+    border-top: 1px solid rgba(75,47,163,0.2);
+    background: linear-gradient(0deg, rgba(13,8,24,0.9), transparent);
+  }
+  .footer-logo {
+    font-family: var(--font-title); font-size: 1.5rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--p6));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.3rem; letter-spacing: 0.04em;
+  }
+  .footer-school {
+    font-family: var(--font-body); font-size: 0.75rem; color: var(--p6);
+    letter-spacing: 0.06em; margin-bottom: 1.5rem;
+  }
+  .footer-links { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+  .footer-links a { font-family: var(--font-ui); color: var(--p6); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.06em; transition: color 0.3s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-copy { font-family: var(--font-body); font-size: 0.73rem; color: var(--p5); letter-spacing: 0.06em; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.5rem; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+    .hero-title { font-size: clamp(2rem, 8vw, 3.5rem); }
+  }
+
+  /* ── Modal ── */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+  }
+  .modal-content {
+    background: linear-gradient(135deg, var(--p2), var(--p3));
+    margin: 15% auto;
+    padding: 2rem;
+    border: 1px solid var(--p5);
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    color: var(--p8);
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    position: relative;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .modal-content h2 {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--gold);
+  }
+  .modal-content p {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  .close {
+    color: var(--gold);
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: none;
+    transition: color 0.3s;
+  }
+  .close:hover {
+    color: var(--rose);
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- 导航栏 -->
+<nav>
+  <div>
+    <div class="logo">
+      <img src="https://www.image2url.com/r2/default/images/1777186784039-1bad113d-14f6-4391-a713-9dbdfbeb9cd8.png" alt="南渝万能墙 logo">
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">平台功能</a></li>
+    <li><a href="#testimonials">学生评价</a></li>
+    <li><a href="javascript:void(0);" onclick="openModal()">加入运营队</a></li>
+    <li><a href="https://nucma.cn/">重庆校墙联</a></li>
+  </ul>
+  <button class="nav-cta" onclick="window.location.href='https://qm.qq.com/q/FHAbiDBIQO'"><span>立即进入</span></button>
+</nav>
+
+<!-- 主视觉区 -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="hero-grid"></div>
+  <div class="particles" id="heroParticles"></div>
+
+  <div class="hero-content">
+    <div class="school-badge">重庆校墙联核心成员</div>
+    <h1 class="hero-title">
+      <span class="line1">南渝万能墙</span>
+      <span class="line2">坚持打造南渝学子的一站式服务平台</span>
+    </h1>
+    <p class="hero-sub">
+      南渝万能墙隶属于重庆校墙联，成立于2024年8月8日。不属于学校组织、不代表学校立场、不表明学校观点。
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="window.location.href='https://v.douyin.com/wp_Hraxmn1A/'"><span>北关鱼的驿站</span></button>
+      <button class="btn-ghost" onclick="window.location.href='http://weixin.qq.com/r/mp/pxGbg1DEDw1wrRTg90S1'"><span>BEIGUANYU驿站</span></button>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>向下探索</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- 滚动标签栏 -->
+<div class="showcase">
+  <div class="marquee-track">
+    <span class="marquee-pill highlight">✦ 课业互助</span>
+    <span class="marquee-pill">活动公告</span>
+    <span class="marquee-pill highlight">✦ 二手出售</span>
+    <span class="marquee-pill">寻找搭子</span>
+    <span class="marquee-pill highlight">✦ 社团招募</span>
+    <span class="marquee-pill">失物招领</span>
+    <span class="marquee-pill highlight">✦ 校园资讯</span>
+    <span class="marquee-pill">互动问答</span>
+    <span class="marquee-pill highlight">✦ 学习交流</span>
+    <span class="marquee-pill">表白心意</span>
+    <span class="marquee-pill highlight">✦ 课业互助</span>
+    <span class="marquee-pill">活动公告</span>
+    <span class="marquee-pill highlight">✦ 二手出售</span>
+    <span class="marquee-pill">寻找搭子</span>
+    <span class="marquee-pill highlight">✦ 社团招募</span>
+    <span class="marquee-pill">失物招领</span>
+    <span class="marquee-pill highlight">✦ 校园资讯</span>
+    <span class="marquee-pill">互动问答</span>
+    <span class="marquee-pill highlight">✦ 学习交流</span>
+    <span class="marquee-pill">表白心意</span>
+  </div>
+</div>
+
+<!-- 数据统计 -->
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-num" data-target="1990">0</div>
+      <div class="stat-label">好友数量</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-target="428">0</div>
+      <div class="stat-label">总共稿件</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-target="90">0</div>
+      <div class="stat-label">用户满意度</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-target="6">0</div>
+      <div class="stat-label">核心模块</div>
+    </div>
+  </div>
+</div>
+
+<!-- 平台功能 -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <div class="section-label">平台核心功能</div>
+      <h2 class="section-title">专为<strong>南渝学子</strong>打造六大版块</h2>
+      <p class="section-body">南渝万能墙汇聚校园生活中最真实的需求，以互联互通的方式，让每一位南渝学子都能在这里找到归属感。</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round">
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a87fe8"/><stop offset="100%" stop-color="#e86fa3"/></linearGradient></defs>
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </div>
+        <h3>课业互助</h3>
+        <p>在这里提问、解答、分享笔记与学习资料，让优秀的南渝学子相互成就，共同进步，让知识在校园中自由流动。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round">
+            <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5de8d0"/><stop offset="100%" stop-color="#a87fe8"/></linearGradient></defs>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <h3>表白心意</h3>
+        <p>匿名倾诉、表白心意，校园中那些说不出口的话，都可以在这里被倾听。温暖与支持，从未缺席。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#g3)" stroke-width="1.5" stroke-linecap="round">
+            <defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8c97a"/><stop offset="100%" stop-color="#e86fa3"/></linearGradient></defs>
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+        </div>
+        <h3>二手出售</h3>
+        <p>教辅书籍、文具器材、闲置好物，统统在这里循环利用。打造绿色校园，南渝万能墙先行。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#g4)" stroke-width="1.5" stroke-linecap="round">
+            <defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a87fe8"/><stop offset="100%" stop-color="#5de8d0"/></linearGradient></defs>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <h3>活动公告</h3>
+        <p>社团招新、运动会、艺术节、校级通知……所有校园动态一网打尽，再也不错过任何重要信息。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#g5)" stroke-width="1.5" stroke-linecap="round">
+            <defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e86fa3"/><stop offset="100%" stop-color="#e8c97a"/></linearGradient></defs>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3>失物招领</h3>
+        <p>丢失了水杯、钥匙、身份证？在南渝万能墙快速发布或查询，让校园里的失物找到回家的路。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="url(#g6)" stroke-width="1.5" stroke-linecap="round">
+            <defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5de8d0"/><stop offset="100%" stop-color="#e8c97a"/></linearGradient></defs>
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <h3>寻找搭子</h3>
+        <p>假期没有人出来玩？来南渝万能墙寻找志同道合的搭子！在这里，认识新同学、结实新朋友、分享快乐时光。</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 学生评价 -->
+<section class="testimonials" id="testimonials">
+  <div class="testimonials-inner">
+    <div class="section-label">同学们的声音</div>
+    <h2 class="section-title">来自<strong>南渝学子</strong>的真实评价</h2>
+    <div class="testi-grid">
+
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">南渝万能墙真的太方便了！我的东西在学校不小心丢了，同学让我来南渝万能墙投稿，还真有好心同学看到并通过万能墙回复了我。</p>
+        <div class="testi-author">
+          <div class="testi-avatar">周</div>
+          <div>
+            <div class="testi-name">周同学</div>
+            <div class="testi-role">初一年级</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">我经常使用南渝万能墙寻找运动搭子。南渝中学是终身运动的学校，同学们在体育上也都有一技之长。和新朋友一起出去运动，感觉特别棒！</p>
+        <div class="testi-author">
+          <div class="testi-avatar">张</div>
+          <div>
+            <div class="testi-name">张同学</div>
+            <div class="testi-role">初一年级</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <p class="testi-quote">南渝万能墙经常会及时推送学校咨询，我能很方便的了解到学校近期活动安排，这节省了我很多时间去打听消息。</p>
+        <div class="testi-author">
+          <div class="testi-avatar">陈</div>
+          <div>
+            <div class="testi-name">陈同学</div>
+            <div class="testi-role">高二年级</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 加入召唤 -->
+<section class="cta-section" id="join">
+  <div class="orb-5"></div>
+  <div class="cta-inner">
+    <h2 class="cta-title">进入南渝万能墙<br><em>让校园生活更精彩</em></h2>
+    <p class="cta-sub">
+      1900+ 南渝学子已在这里相遇。无论你需要学业帮助、想结交朋友，还是只想分享今天的心情——
+      南渝万能墙永远为你敞开。
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="window.location.href='https://qm.qq.com/q/FHAbiDBIQO'"><span>立即进入</span></button>
+      <button class="btn-ghost" onclick="openModal()"><span>成为运营成员</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+  <div class="footer-copy">© 2026 南渝万能墙运营队 · 保留所有权利</div>
+</footer>
+
+<!-- 弹窗 -->
+<div id="joinModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>加入运营队</h2>
+    <p>很感谢您愿意加入南渝万能墙运营队！南渝万能墙目前正在招募初2028届、高2028届学生（校区不限）。运营队成员能够在培训后直接管理南渝万能墙，并且享有重庆校墙联的成员优惠福利。加入运营队请先添加在QQ添加南渝万能墙QQ好友（3969066287），并私信发送“申请加入运营队”。运营成员看到后会回复您的私信。</p>
+  </div>
+</div>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+
+// Floating particles
+function spawnParticle(container) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 4 + 2;
+  const colors = ['var(--p5)', 'var(--p6)', 'var(--gold)', 'var(--rose)', 'var(--teal)'];
+  p.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${Math.random() * 100}%;
+    bottom:${Math.random() * 20}%;
+    background:${colors[Math.floor(Math.random() * colors.length)]};
+    --dur:${4 + Math.random() * 8}s;
+    --delay:${Math.random() * 6}s;
+  `;
+  container.appendChild(p);
+  setTimeout(() => p.remove(), (10 + Math.random() * 8) * 1000);
+}
+const pc = document.getElementById('heroParticles');
+setInterval(() => spawnParticle(pc), 600);
+
+// Scroll reveal
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 90);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.feature-card, .testi-card').forEach(el => revealObs.observe(el));
+
+// Count-up animation
+function countUp(el, target, duration = 2000) {
+  const isFloat = String(target).includes('.');
+  const decimals = isFloat ? 1 : 0;
+  const start = performance.now();
+  (function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = (target * ease).toFixed(decimals);
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target;
+  })(start);
+}
+const statObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      countUp(entry.target, parseFloat(entry.target.dataset.target));
+      statObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num[data-target]').forEach(el => statObs.observe(el));
+
+// Modal functionality
+function openModal() {
+  const modal = document.getElementById('joinModal');
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    modal.querySelector('.modal-content').style.opacity = '1';
+    modal.querySelector('.modal-content').style.transform = 'scale(1)';
+  }, 10);
+}
+
+function closeModal() {
+  const modal = document.getElementById('joinModal');
+  modal.querySelector('.modal-content').style.opacity = '0';
+  modal.querySelector('.modal-content').style.transform = 'scale(0.8)';
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 300);
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById('joinModal');
+  if (event.target == modal) {
+    closeModal();
+  }
+};
+</script>
+</body>
+</html>
