@@ -2,16 +2,16 @@
   "name": "ny-nucma-cn",
   "private": true,
   "type": "module",
-  "packageManager": "npm@9.8.1",
+  "packageManager": "npm@10.5.0",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "scripts": {
     "build": "echo \"No build step required\"",
     "vercel-build": "echo \"No build step required\""
   },
   "dependencies": {
-    "drizzle-orm": "^2.0.0",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.11.0"
   }
 }
